@@ -1,0 +1,6 @@
+{
+  "name": "Verity Academic",
+  "description": "Unified university assignment portal with real-time deadline tracking, sentence-level AI and plagiarism inspection, rubric grading, extension petitions, and private instructor messaging.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
