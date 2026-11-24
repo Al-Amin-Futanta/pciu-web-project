@@ -89,7 +89,6 @@ export function LecturerInspector({
     ? reviews.find((r) => r.submissionId === activeSubmission.id)
     : undefined;
 
-  // Load original PDF preview blob securely via authenticated endpoint
   useEffect(() => {
     let revokedUrl: string | null = null;
     let active = true;
@@ -144,12 +143,12 @@ export function LecturerInspector({
 
   if (submissions.length === 0) {
     return (
-      <div className="rounded-lg border border-[#E2DDD3] bg-white p-12 text-center">
-        <FileText className="mx-auto h-9 w-9 text-[#5A6475]/60" />
-        <h2 className="mt-3 font-display text-xl font-semibold text-[#14213D]">
+      <div className="rounded-lg border border-[#E2DDD3] bg-white p-12 text-center dark:border-[#293752] dark:bg-[#131C2E]">
+        <FileText className="mx-auto h-9 w-9 text-[#5A6475]/60 dark:text-white/75" />
+        <h2 className="mt-3 font-display text-xl font-semibold text-[#14213D] dark:text-white">
           No Student Submissions Yet
         </h2>
-        <p className="mx-auto mt-1.5 max-w-md text-sm text-[#5A6475]">
+        <p className="mx-auto mt-1.5 max-w-md text-sm text-[#5A6475] dark:text-white/80">
           Student PDF, Word, and text files will appear here as soon as they are uploaded.
         </p>
       </div>
@@ -211,17 +210,20 @@ export function LecturerInspector({
       (highlightFilter === 'all' || highlightFilter === 'plagiarism') &&
       (sentence.label === 'plagiarism_match' || sentence.plagiarismScore >= 45);
 
-    let bg = 'hover:bg-[#F2EFE9]';
+    let bg = 'hover:bg-[#F2EFE9] dark:hover:bg-[#1A263D]';
     if (showPlag) {
-      bg = 'bg-[#8C2D38]/12 underline decoration-[#8C2D38]/60 decoration-2 underline-offset-4';
+      bg =
+        'bg-[#8C2D38]/12 dark:bg-rose-500/25 underline decoration-[#8C2D38]/60 dark:decoration-rose-300 decoration-2 underline-offset-4';
     } else if (showAi && sentence.label === 'ai_likely') {
-      bg = 'bg-[#B4690E]/16 underline decoration-[#B4690E]/60 decoration-2 underline-offset-4';
+      bg =
+        'bg-[#B4690E]/16 dark:bg-amber-500/25 underline decoration-[#B4690E]/60 dark:decoration-amber-300 decoration-2 underline-offset-4';
     } else if (showAi && sentence.label === 'ai_suspected') {
-      bg = 'bg-[#B4690E]/8 underline decoration-[#B4690E]/40 decoration-dashed underline-offset-4';
+      bg =
+        'bg-[#B4690E]/8 dark:bg-amber-500/15 underline decoration-[#B4690E]/40 dark:decoration-amber-300/70 decoration-dashed underline-offset-4';
     }
 
     return `${bg} ${
-      isSelected ? 'ring-2 ring-[#14213D] ring-offset-1 rounded-xs' : 'rounded-xs'
+      isSelected ? 'ring-2 ring-[#14213D] dark:ring-white ring-offset-1 rounded-xs' : 'rounded-xs'
     } transition-colors cursor-pointer px-1 py-0.5`;
   };
 
@@ -238,16 +240,19 @@ export function LecturerInspector({
   return (
     <div className="space-y-6">
       {/* Submission Selector Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-[#E2DDD3] bg-white px-5 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-[#E2DDD3] bg-white px-5 py-4 dark:border-[#293752] dark:bg-[#131C2E]">
         <div className="flex flex-wrap items-center gap-3">
-          <label className="text-xs font-semibold text-[#5A6475]" htmlFor="lecturer-sub-select">
+          <label
+            className="text-xs font-semibold text-[#5A6475] dark:text-white/80"
+            htmlFor="lecturer-sub-select"
+          >
             Student Submission:
           </label>
           <select
             id="lecturer-sub-select"
             value={activeSubmission?.id ?? ''}
             onChange={(e) => setSelectedSubId(e.target.value)}
-            className="max-w-md rounded-md border border-[#E2DDD3] bg-[#FAF8F4] px-3 py-1.5 text-sm font-medium text-[#1E2430] focus:border-[#14213D] focus:outline-none"
+            className="max-w-md rounded-md border border-[#E2DDD3] bg-[#FAF8F4] px-3 py-1.5 text-sm font-medium text-[#1E2430] focus:border-[#14213D] focus:outline-none dark:border-[#293752] dark:bg-[#0B1120] dark:text-white"
           >
             {submissions.map((sub) => {
               const assign = assignments.find((a) => a.id === sub.assignmentId);
@@ -263,7 +268,7 @@ export function LecturerInspector({
 
         {activeSubmission && activeAssignment && (
           <div className="flex flex-wrap items-center gap-3">
-            <span className="font-mono text-xs text-[#5A6475] tabular-nums">
+            <span className="font-mono text-xs text-[#5A6475] dark:text-white/80 tabular-nums">
               {activeSubmission.fileName} · {Math.max(1, Math.round(activeSubmission.fileSize / 1024))}{' '}
               KB · v{activeSubmission.version}
             </span>
@@ -271,7 +276,7 @@ export function LecturerInspector({
               type="button"
               disabled={downloading || !activeSubmission.hasStoredFile}
               onClick={handleDownloadOriginal}
-              className="flex items-center gap-1.5 rounded-md border border-[#E2DDD3] px-3 py-1.5 text-xs font-medium text-[#14213D] hover:bg-[#F2EFE9] disabled:opacity-40 whitespace-nowrap cursor-pointer"
+              className="flex items-center gap-1.5 rounded-md border border-[#E2DDD3] px-3 py-1.5 text-xs font-medium text-[#14213D] hover:bg-[#F2EFE9] disabled:opacity-40 dark:border-[#293752] dark:text-white dark:hover:bg-[#1A263D] whitespace-nowrap cursor-pointer"
             >
               <Download className="h-3.5 w-3.5" />
               {downloading ? 'Downloading...' : 'Download File'}
@@ -281,7 +286,7 @@ export function LecturerInspector({
               onClick={() =>
                 onOpenMessageThread(activeSubmission.studentId, activeSubmission.assignmentId)
               }
-              className="flex items-center gap-1.5 rounded-md border border-[#E2DDD3] px-3 py-1.5 text-xs font-medium text-[#14213D] hover:bg-[#F2EFE9] whitespace-nowrap cursor-pointer"
+              className="flex items-center gap-1.5 rounded-md border border-[#E2DDD3] px-3 py-1.5 text-xs font-medium text-[#14213D] hover:bg-[#F2EFE9] dark:border-[#293752] dark:text-white dark:hover:bg-[#1A263D] whitespace-nowrap cursor-pointer"
             >
               <MessageSquare className="h-3.5 w-3.5" />
               Message Student
@@ -290,33 +295,33 @@ export function LecturerInspector({
         )}
       </div>
 
-      {/* Main Split-Pane Workspace: 60% Document Viewer / 40% AI Gate & Feedback */}
+      {/* Main Split-Pane Workspace */}
       {activeSubmission && activeAssignment && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* LEFT 7 cols: Built-In PDF/Document Viewer + AI Forensics View */}
           <div className="space-y-4 lg:col-span-7">
-            <div className="rounded-lg border border-[#E2DDD3] bg-white">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E2DDD3] px-6 py-4">
+            <div className="rounded-lg border border-[#E2DDD3] bg-white dark:border-[#293752] dark:bg-[#131C2E]">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E2DDD3] px-6 py-4 dark:border-[#293752]">
                 <div>
-                  <h2 className="font-display text-lg font-semibold text-[#14213D]">
+                  <h2 className="font-display text-lg font-semibold text-[#14213D] dark:text-white">
                     {viewerMode === 'document'
                       ? 'Built-In Assignment Viewer'
                       : 'AI & Plagiarism Sentence Forensics'}
                   </h2>
-                  <p className="font-mono text-xs text-[#5A6475] tabular-nums">
+                  <p className="font-mono text-xs text-[#5A6475] dark:text-white/75 tabular-nums">
                     Received {formatAcademicDate(activeSubmission.submittedAt)} ·{' '}
                     {activeSubmission.wordCount} words
                   </p>
                 </div>
 
-                <div className="inline-flex rounded-md border border-[#E2DDD3] bg-[#F2EFE9] p-1">
+                <div className="inline-flex rounded-md border border-[#E2DDD3] bg-[#F2EFE9] p-1 dark:border-[#293752] dark:bg-[#0B1120]">
                   <button
                     type="button"
                     onClick={() => setViewerMode('document')}
                     className={`flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium whitespace-nowrap cursor-pointer ${
                       viewerMode === 'document'
-                        ? 'bg-white text-[#14213D]'
-                        : 'text-[#5A6475] hover:text-[#1E2430]'
+                        ? 'bg-white text-[#14213D] dark:bg-[#1A263D] dark:text-white'
+                        : 'text-[#5A6475] hover:text-[#1E2430] dark:text-white/75 dark:hover:text-white'
                     }`}
                   >
                     <Eye className="h-3.5 w-3.5" />
@@ -327,8 +332,8 @@ export function LecturerInspector({
                     onClick={() => setViewerMode('forensics')}
                     className={`flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium whitespace-nowrap cursor-pointer ${
                       viewerMode === 'forensics'
-                        ? 'bg-white text-[#14213D]'
-                        : 'text-[#5A6475] hover:text-[#1E2430]'
+                        ? 'bg-white text-[#14213D] dark:bg-[#1A263D] dark:text-white'
+                        : 'text-[#5A6475] hover:text-[#1E2430] dark:text-white/75 dark:hover:text-white'
                     }`}
                   >
                     <ScanSearch className="h-3.5 w-3.5" />
@@ -338,66 +343,66 @@ export function LecturerInspector({
               </div>
 
               {activeSubmission.studentNote && (
-                <div className="border-b border-[#E2DDD3] bg-[#FAF8F4] px-6 py-3 text-xs text-[#1E2430]">
-                  <span className="font-semibold text-[#14213D]">Student Submission Note: </span>
+                <div className="border-b border-[#E2DDD3] bg-[#FAF8F4] px-6 py-3 text-xs text-[#1E2430] dark:border-[#293752] dark:bg-[#0B1120] dark:text-white">
+                  <span className="font-semibold text-[#14213D] dark:text-white">
+                    Student Submission Note:{' '}
+                  </span>
                   {activeSubmission.studentNote}
                 </div>
               )}
 
               {fileError && (
-                <div className="mx-6 mt-4 rounded-md border border-[#8C2D38]/30 bg-[#8C2D38]/5 px-4 py-2.5 text-xs text-[#8C2D38]">
+                <div className="mx-6 mt-4 rounded-md border border-[#8C2D38]/30 bg-[#8C2D38]/5 px-4 py-2.5 text-xs text-[#8C2D38] dark:border-rose-400/40 dark:bg-rose-500/15 dark:text-white">
                   {fileError}
                 </div>
               )}
 
-              {/* VIEW 1: Built-in Document / PDF Viewer */}
               {viewerMode === 'document' ? (
                 <div className="p-6">
                   {isPdfFile ? (
                     fileLoading ? (
-                      <div className="flex h-[520px] items-center justify-center rounded-md border border-[#E2DDD3] bg-[#FAF8F4] text-xs text-[#5A6475]">
+                      <div className="flex h-[520px] items-center justify-center rounded-md border border-[#E2DDD3] bg-[#FAF8F4] text-xs text-[#5A6475] dark:border-[#293752] dark:bg-[#0B1120] dark:text-white/80">
                         Loading PDF document preview...
                       </div>
                     ) : pdfObjectUrl ? (
                       <iframe
                         title={activeSubmission.fileName}
                         src={pdfObjectUrl}
-                        className="h-[560px] w-full rounded-md border border-[#E2DDD3] bg-[#FAF8F4]"
+                        className="h-[560px] w-full rounded-md border border-[#E2DDD3] bg-[#FAF8F4] dark:border-[#293752]"
                       />
                     ) : (
-                      <div className="whitespace-pre-wrap rounded-md border border-[#E2DDD3] bg-[#FAF8F4] p-5 text-[15px] leading-[1.8] text-[#1E2430]">
+                      <div className="whitespace-pre-wrap rounded-md border border-[#E2DDD3] bg-[#FAF8F4] p-5 text-[15px] leading-[1.8] text-[#1E2430] dark:border-[#293752] dark:bg-[#0B1120] dark:text-white">
                         {activeSubmission.contentText}
                       </div>
                     )
                   ) : (
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between border-b border-[#E2DDD3] pb-2 text-xs text-[#5A6475]">
+                      <div className="flex items-center justify-between border-b border-[#E2DDD3] pb-2 text-xs text-[#5A6475] dark:border-[#293752] dark:text-white/75">
                         <span>Formatted Document Text ({activeSubmission.fileName})</span>
                         <span>Use Download File above for native Word/Text file</span>
                       </div>
-                      <div className="max-h-[520px] overflow-y-auto whitespace-pre-wrap rounded-md border border-[#E2DDD3] bg-[#FAF8F4] p-5 text-[15px] leading-[1.8] text-[#1E2430]">
+                      <div className="max-h-[520px] overflow-y-auto whitespace-pre-wrap rounded-md border border-[#E2DDD3] bg-[#FAF8F4] p-5 text-[15px] leading-[1.8] text-[#1E2430] dark:border-[#293752] dark:bg-[#0B1120] dark:text-white">
                         {activeSubmission.contentText}
                       </div>
                     </div>
                   )}
                 </div>
               ) : (
-                /* VIEW 2: Sentence-Level AI & Plagiarism Forensics */
                 <div>
                   {activeReport ? (
                     <>
-                      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E2DDD3] bg-[#FAF8F4] px-6 py-2.5">
-                        <div className="flex flex-wrap items-center gap-4 text-xs text-[#5A6475]">
+                      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E2DDD3] bg-[#FAF8F4] px-6 py-2.5 dark:border-[#293752] dark:bg-[#0B1120]">
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-[#5A6475] dark:text-white/80">
                           <span className="flex items-center gap-1.5">
-                            <span className="inline-block h-2.5 w-2.5 rounded-xs bg-[#B4690E]/40 border border-[#B4690E]" />
+                            <span className="inline-block h-2.5 w-2.5 rounded-xs border border-[#B4690E] bg-[#B4690E]/40" />
                             AI-Generated Signal
                           </span>
                           <span className="flex items-center gap-1.5">
-                            <span className="inline-block h-2.5 w-2.5 rounded-xs bg-[#8C2D38]/30 border border-[#8C2D38]" />
+                            <span className="inline-block h-2.5 w-2.5 rounded-xs border border-[#8C2D38] bg-[#8C2D38]/30" />
                             Plagiarism Overlap
                           </span>
                         </div>
-                        <div className="inline-flex rounded-md border border-[#E2DDD3] bg-[#F2EFE9] p-1">
+                        <div className="inline-flex rounded-md border border-[#E2DDD3] bg-[#F2EFE9] p-1 dark:border-[#293752] dark:bg-[#131C2E]">
                           {(['all', 'ai', 'plagiarism'] as const).map((mode) => (
                             <button
                               key={mode}
@@ -405,8 +410,8 @@ export function LecturerInspector({
                               onClick={() => setHighlightFilter(mode)}
                               className={`rounded px-2.5 py-1 text-xs font-medium cursor-pointer ${
                                 highlightFilter === mode
-                                  ? 'bg-white text-[#14213D]'
-                                  : 'text-[#5A6475]'
+                                  ? 'bg-white text-[#14213D] dark:bg-[#1A263D] dark:text-white'
+                                  : 'text-[#5A6475] dark:text-white/75'
                               }`}
                             >
                               {mode === 'all'
@@ -420,7 +425,7 @@ export function LecturerInspector({
                       </div>
 
                       <div className="p-6">
-                        <p className="text-[15px] leading-[1.85] text-[#1E2430]">
+                        <p className="text-[15px] leading-[1.85] text-[#1E2430] dark:text-white">
                           {activeReport.sentences.map((sentence) => (
                             <span key={sentence.index}>
                               <span
@@ -446,17 +451,17 @@ export function LecturerInspector({
                       </div>
 
                       {selectedSentence && (
-                        <div className="border-t border-[#E2DDD3] bg-[#FAF8F4] px-6 py-4">
+                        <div className="border-t border-[#E2DDD3] bg-[#FAF8F4] px-6 py-4 dark:border-[#293752] dark:bg-[#0B1120]">
                           <div className="flex flex-wrap items-center justify-between gap-2">
-                            <p className="text-xs font-semibold text-[#14213D]">
+                            <p className="text-xs font-semibold text-[#14213D] dark:text-white">
                               Sentence #{selectedSentence.index + 1} Diagnostic
                             </p>
                             <div className="flex items-center gap-4 font-mono text-xs tabular-nums">
                               <span
                                 className={
                                   selectedSentence.aiProbability >= 60
-                                    ? 'font-semibold text-[#B4690E]'
-                                    : 'text-[#1F6E52]'
+                                    ? 'font-semibold text-[#B4690E] dark:text-amber-300'
+                                    : 'text-[#1F6E52] dark:text-emerald-300'
                                 }
                               >
                                 AI Probability: {selectedSentence.aiProbability}%
@@ -464,17 +469,19 @@ export function LecturerInspector({
                               <span
                                 className={
                                   selectedSentence.plagiarismScore >= 40
-                                    ? 'font-semibold text-[#8C2D38]'
-                                    : 'text-[#5A6475]'
+                                    ? 'font-semibold text-[#8C2D38] dark:text-rose-300'
+                                    : 'text-[#5A6475] dark:text-white/75'
                                 }
                               >
                                 Similarity: {selectedSentence.plagiarismScore}%
                               </span>
                             </div>
                           </div>
-                          <p className="mt-1.5 text-sm text-[#1E2430]">{selectedSentence.reason}</p>
+                          <p className="mt-1.5 text-sm text-[#1E2430] dark:text-white/90">
+                            {selectedSentence.reason}
+                          </p>
                           {selectedSentence.matchedSource && (
-                            <p className="mt-1.5 font-mono text-xs text-[#8C2D38]">
+                            <p className="mt-1.5 font-mono text-xs text-[#8C2D38] dark:text-rose-300">
                               Source Flag: {selectedSentence.matchedSource}
                             </p>
                           )}
@@ -483,11 +490,11 @@ export function LecturerInspector({
                     </>
                   ) : (
                     <div className="p-10 text-center">
-                      <ScanSearch className="mx-auto h-8 w-8 text-[#5A6475]/60" />
-                      <p className="mt-3 text-sm font-medium text-[#1E2430]">
+                      <ScanSearch className="mx-auto h-8 w-8 text-[#5A6475]/60 dark:text-white/75" />
+                      <p className="mt-3 text-sm font-medium text-[#1E2430] dark:text-white">
                         AI &amp; Plagiarism Check Not Yet Run
                       </p>
-                      <p className="mt-1 text-xs text-[#5A6475]">
+                      <p className="mt-1 text-xs text-[#5A6475] dark:text-white/80">
                         Run Step 1 on the right panel to inspect sentence-level AI authorship and
                         cohort similarity highlights.
                       </p>
@@ -498,16 +505,16 @@ export function LecturerInspector({
             </div>
           </div>
 
-          {/* RIGHT 5 cols: Step 1 AI Check + Step 2 Receipt Confirmation & Feedback (NO GRADES) */}
+          {/* RIGHT 5 cols: Step 1 AI Check + Step 2 Receipt Confirmation & Feedback */}
           <div className="space-y-5 lg:col-span-5">
-            {/* STEP 1: AI Detection & Plagiarism Check */}
-            <div className="rounded-lg border border-[#E2DDD3] bg-white p-5">
+            {/* STEP 1 */}
+            <div className="rounded-lg border border-[#E2DDD3] bg-white p-5 dark:border-[#293752] dark:bg-[#131C2E]">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="font-mono text-[11px] font-semibold text-[#5A6475]">
+                  <p className="font-mono text-[11px] font-semibold text-[#5A6475] dark:text-white/75">
                     STEP 1 · REQUIRED BEFORE FEEDBACK
                   </p>
-                  <h3 className="mt-0.5 font-display text-base font-semibold text-[#14213D]">
+                  <h3 className="mt-0.5 font-display text-base font-semibold text-[#14213D] dark:text-white">
                     AI Detection &amp; Plagiarism Check
                   </h3>
                 </div>
@@ -515,10 +522,10 @@ export function LecturerInspector({
                   <span
                     className={`flex items-center gap-1 font-mono text-xs font-semibold shrink-0 ${
                       activeReport.riskLevel === 'high'
-                        ? 'text-[#8C2D38]'
+                        ? 'text-[#8C2D38] dark:text-rose-300'
                         : activeReport.riskLevel === 'moderate'
-                          ? 'text-[#B4690E]'
-                          : 'text-[#1F6E52]'
+                          ? 'text-[#B4690E] dark:text-amber-300'
+                          : 'text-[#1F6E52] dark:text-emerald-300'
                     }`}
                   >
                     {activeReport.riskLevel === 'high' ? (
@@ -534,7 +541,7 @@ export function LecturerInspector({
               </div>
 
               {scanError && (
-                <div className="mt-3 rounded-md border border-[#8C2D38]/30 bg-[#8C2D38]/5 px-3.5 py-2.5 text-xs text-[#8C2D38]">
+                <div className="mt-3 rounded-md border border-[#8C2D38]/30 bg-[#8C2D38]/5 px-3.5 py-2.5 text-xs text-[#8C2D38] dark:border-rose-400/40 dark:bg-rose-500/15 dark:text-white">
                   {scanError}
                 </div>
               )}
@@ -543,7 +550,7 @@ export function LecturerInspector({
                 type="button"
                 disabled={scanning}
                 onClick={handleScan}
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-md bg-[#14213D] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#1D2E54] disabled:opacity-50 cursor-pointer"
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-md bg-[#14213D] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#1D2E54] disabled:opacity-50 dark:bg-white dark:text-[#14213D] dark:hover:bg-slate-100 cursor-pointer"
               >
                 <ScanSearch className="h-4 w-4" />
                 {scanning
@@ -555,69 +562,80 @@ export function LecturerInspector({
 
               {activeReport ? (
                 <div className="mt-4 space-y-4">
-                  <div className="grid grid-cols-2 gap-4 border-y border-[#E2DDD3] py-3">
+                  <div className="grid grid-cols-2 gap-4 border-y border-[#E2DDD3] py-3 dark:border-[#293752]">
                     <div>
-                      <p className="text-xs text-[#5A6475]">AI Authorship Index</p>
-                      <p className="mt-0.5 font-mono text-2xl font-semibold text-[#B4690E] tabular-nums">
+                      <p className="text-xs text-[#5A6475] dark:text-white/75">
+                        AI Authorship Index
+                      </p>
+                      <p className="mt-0.5 font-mono text-2xl font-semibold text-[#B4690E] dark:text-amber-300 tabular-nums">
                         {activeReport.aiScore}%
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-[#5A6475]">Plagiarism Similarity</p>
-                      <p className="mt-0.5 font-mono text-2xl font-semibold text-[#8C2D38] tabular-nums">
+                      <p className="text-xs text-[#5A6475] dark:text-white/75">
+                        Plagiarism Similarity
+                      </p>
+                      <p className="mt-0.5 font-mono text-2xl font-semibold text-[#8C2D38] dark:text-rose-300 tabular-nums">
                         {activeReport.plagiarismScore}%
                       </p>
                     </div>
                   </div>
 
-                  <p className="text-xs leading-relaxed text-[#1E2430]">{activeReport.summary}</p>
+                  <p className="text-xs leading-relaxed text-[#1E2430] dark:text-white/90">
+                    {activeReport.summary}
+                  </p>
 
                   {activeReport.cohortMatches.length > 0 && (
-                    <div className="rounded-md border border-[#8C2D38]/25 bg-[#8C2D38]/5 p-3">
-                      <p className="text-xs font-semibold text-[#8C2D38]">
+                    <div className="rounded-md border border-[#8C2D38]/25 bg-[#8C2D38]/5 p-3 dark:border-rose-400/40 dark:bg-rose-500/15">
+                      <p className="text-xs font-semibold text-[#8C2D38] dark:text-rose-200">
                         Cohort Similarity Matches
                       </p>
                       <ul className="mt-2 space-y-2">
                         {activeReport.cohortMatches.map((m) => (
-                          <li key={m.matchedSubmissionId} className="text-xs text-[#1E2430]">
+                          <li
+                            key={m.matchedSubmissionId}
+                            className="text-xs text-[#1E2430] dark:text-white"
+                          >
                             <span className="font-semibold">{m.matchedStudentName}</span>{' '}
-                            <span className="font-mono text-[#8C2D38] tabular-nums">
+                            <span className="font-mono text-[#8C2D38] dark:text-rose-200 tabular-nums">
                               ({m.overlapPercent}% overlap)
                             </span>
-                            <p className="mt-0.5 italic text-[#5A6475]">“{m.sharedExcerpt}”</p>
+                            <p className="mt-0.5 italic text-[#5A6475] dark:text-white/80">
+                              “{m.sharedExcerpt}”
+                            </p>
                           </li>
                         ))}
                       </ul>
                     </div>
                   )}
 
-                  <p className="font-mono text-[11px] text-[#5A6475]">
+                  <p className="font-mono text-[11px] text-[#5A6475] dark:text-white/75">
                     Checked by {activeReport.analyzedBy} ·{' '}
                     {formatAcademicDate(activeReport.analyzedAt)}
                   </p>
                 </div>
               ) : (
-                <p className="mt-3 text-xs leading-relaxed text-[#5A6475]">
+                <p className="mt-3 text-xs leading-relaxed text-[#5A6475] dark:text-white/80">
                   Run the AI detection check on this file version first to unlock Step 2 (Receipt
                   Confirmation &amp; Written Feedback).
                 </p>
               )}
             </div>
 
-            {/* STEP 2: Receipt Confirmation & Qualitative Feedback (NO GRADING) */}
-            <div className="rounded-lg border border-[#E2DDD3] bg-white p-5">
-              <div className="border-b border-[#E2DDD3] pb-3">
-                <p className="font-mono text-[11px] font-semibold text-[#5A6475]">
+            {/* STEP 2 */}
+            <div className="rounded-lg border border-[#E2DDD3] bg-white p-5 dark:border-[#293752] dark:bg-[#131C2E]">
+              <div className="border-b border-[#E2DDD3] pb-3 dark:border-[#293752]">
+                <p className="font-mono text-[11px] font-semibold text-[#5A6475] dark:text-white/75">
                   STEP 2 · NO NUMERIC GRADING
                 </p>
-                <h3 className="mt-0.5 font-display text-base font-semibold text-[#14213D]">
+                <h3 className="mt-0.5 font-display text-base font-semibold text-[#14213D] dark:text-white">
                   Receipt Confirmation &amp; Feedback
                 </h3>
               </div>
 
               {!activeReport ? (
-                <div className="mt-4 flex items-start gap-3 rounded-md border border-[#E2DDD3] bg-[#FAF8F4] p-4 text-xs text-[#5A6475]">
-                  <Lock className="mt-0.5 h-4 w-4 shrink-0 text-[#B4690E]" />
+                <div className="mt-4 flex items-start gap-3 rounded-md border border-[#E2DDD3] bg-[#FAF8F4] p-4 text-xs text-[#5A6475] dark:border-[#293752] dark:bg-[#0B1120] dark:text-white/85">
+                  <Lock className="mt-0.5 h-4 w-4 shrink-0 text-[#B4690E] dark:text-amber-300" />
                   <span>
                     Feedback is gated until you run the <strong>AI Detection Check</strong> in Step
                     1 on submission version v{activeSubmission.version}.
@@ -626,13 +644,13 @@ export function LecturerInspector({
               ) : (
                 <form onSubmit={handleReviewSubmit} className="mt-4 space-y-4">
                   {reviewError && (
-                    <div className="rounded-md border border-[#8C2D38]/30 bg-[#8C2D38]/5 px-3 py-2 text-xs text-[#8C2D38]">
+                    <div className="rounded-md border border-[#8C2D38]/30 bg-[#8C2D38]/5 px-3 py-2 text-xs text-[#8C2D38] dark:border-rose-400/40 dark:bg-rose-500/15 dark:text-white">
                       {reviewError}
                     </div>
                   )}
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#1E2430]">
+                    <label className="block text-xs font-semibold text-[#1E2430] dark:text-white">
                       Confirmation Decision
                     </label>
                     <div className="mt-2 grid grid-cols-2 gap-2">
@@ -641,8 +659,8 @@ export function LecturerInspector({
                         onClick={() => setReviewStatus('confirmed')}
                         className={`flex items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-xs font-semibold cursor-pointer ${
                           reviewStatus === 'confirmed'
-                            ? 'border-[#1F6E52] bg-[#1F6E52]/10 text-[#1F6E52]'
-                            : 'border-[#E2DDD3] bg-white text-[#5A6475]'
+                            ? 'border-[#1F6E52] bg-[#1F6E52]/10 text-[#1F6E52] dark:border-emerald-300 dark:bg-emerald-500/20 dark:text-white'
+                            : 'border-[#E2DDD3] bg-white text-[#5A6475] dark:border-[#293752] dark:bg-[#0B1120] dark:text-white/75'
                         }`}
                       >
                         <CheckCircle2 className="h-3.5 w-3.5" />
@@ -653,8 +671,8 @@ export function LecturerInspector({
                         onClick={() => setReviewStatus('revision_requested')}
                         className={`flex items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-xs font-semibold cursor-pointer ${
                           reviewStatus === 'revision_requested'
-                            ? 'border-[#B4690E] bg-[#B4690E]/10 text-[#B4690E]'
-                            : 'border-[#E2DDD3] bg-white text-[#5A6475]'
+                            ? 'border-[#B4690E] bg-[#B4690E]/10 text-[#B4690E] dark:border-amber-300 dark:bg-amber-500/20 dark:text-white'
+                            : 'border-[#E2DDD3] bg-white text-[#5A6475] dark:border-[#293752] dark:bg-[#0B1120] dark:text-white/75'
                         }`}
                       >
                         <RotateCcw className="h-3.5 w-3.5" />
@@ -664,7 +682,7 @@ export function LecturerInspector({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#1E2430]">
+                    <label className="block text-xs font-semibold text-[#1E2430] dark:text-white">
                       Written Feedback for Student
                     </label>
                     <textarea
@@ -672,7 +690,7 @@ export function LecturerInspector({
                       onChange={(e) => setFeedback(e.target.value)}
                       rows={4}
                       placeholder="Confirm document receipt and share qualitative observations, citation guidance, or revision instructions..."
-                      className="mt-1.5 w-full rounded-md border border-[#E2DDD3] bg-[#FAF8F4] p-3 text-xs leading-relaxed text-[#1E2430] focus:border-[#14213D] focus:outline-none"
+                      className="mt-1.5 w-full rounded-md border border-[#E2DDD3] bg-[#FAF8F4] p-3 text-xs leading-relaxed text-[#1E2430] focus:border-[#14213D] focus:outline-none dark:border-[#293752] dark:bg-[#0B1120] dark:text-white dark:placeholder:text-white/50 dark:focus:border-white"
                       required
                     />
                   </div>
@@ -680,7 +698,7 @@ export function LecturerInspector({
                   <button
                     type="submit"
                     disabled={savingReview}
-                    className="w-full rounded-md bg-[#14213D] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#1D2E54] disabled:opacity-50 cursor-pointer"
+                    className="w-full rounded-md bg-[#14213D] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#1D2E54] disabled:opacity-50 dark:bg-white dark:text-[#14213D] dark:hover:bg-slate-100 cursor-pointer"
                   >
                     {savingReview
                       ? 'Sending Confirmation...'
@@ -690,17 +708,19 @@ export function LecturerInspector({
                   </button>
 
                   {activeReview && (
-                    <p className="font-mono text-[11px] text-[#1F6E52]">
+                    <p className="font-mono text-[11px] text-[#1F6E52] dark:text-emerald-300">
                       Receipt confirmed on {formatAcademicDate(activeReview.confirmedAt)}
                     </p>
                   )}
 
                   {activeReview?.studentReply && (
-                    <div className="rounded-md border border-[#1F6E52]/30 bg-[#1F6E52]/5 p-3">
-                      <p className="text-xs font-semibold text-[#1F6E52]">
+                    <div className="rounded-md border border-[#1F6E52]/30 bg-[#1F6E52]/5 p-3 dark:border-emerald-400/40 dark:bg-emerald-500/15">
+                      <p className="text-xs font-semibold text-[#1F6E52] dark:text-white">
                         Student Reply ({formatAcademicDate(activeReview.studentReplyAt ?? '')})
                       </p>
-                      <p className="mt-1 text-xs text-[#1E2430]">{activeReview.studentReply}</p>
+                      <p className="mt-1 text-xs text-[#1E2430] dark:text-white/90">
+                        {activeReview.studentReply}
+                      </p>
                     </div>
                   )}
                 </form>

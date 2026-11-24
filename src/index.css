@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   --font-display: "Fraunces", Georgia, serif;
@@ -20,8 +21,14 @@
 @layer base {
   html {
     font-family: var(--font-sans);
-    background-color: var(--color-ivory);
-    color: var(--color-ink);
+    background-color: #FAF8F4;
+    color: #1E2430;
+  }
+
+  html.dark {
+    background-color: #0B1120;
+    color: #FFFFFF;
+    color-scheme: dark;
   }
 
   h1, h2, h3, .font-display {

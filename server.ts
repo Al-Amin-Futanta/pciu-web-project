@@ -141,6 +141,54 @@ function getEnrolledStudentIds(courseId: string): string[] {
   return rows.map((r) => r.student_id);
 }
 
+// Public Contact Us inquiry endpoint
+app.post('/api/contact', (req, res) => {
+  const { fullName, email, roleLabel, message } = (req.body ?? {}) as {
+    fullName?: string;
+    email?: string;
+    roleLabel?: string;
+    message?: string;
+  };
+
+  const cleanName = String(fullName ?? '').trim();
+  const cleanEmail = String(email ?? '').trim();
+  const cleanRole = String(roleLabel ?? 'Student').trim();
+  const cleanMsg = String(message ?? '').trim();
+
+  if (cleanName.length < 2 || cleanName.length > 100) {
+    res.status(400).json({ error: 'Please provide your full name (2–100 characters).' });
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail) || cleanEmail.length > 120) {
+    res.status(400).json({ error: 'Please provide a valid university or contact email.' });
+    return;
+  }
+  if (cleanMsg.length < 10 || cleanMsg.length > 2000) {
+    res.status(400).json({ error: 'Message must be between 10 and 2,000 characters.' });
+    return;
+  }
+
+  const id = `inq-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+  const createdAt = new Date().toISOString();
+
+  db.prepare(
+    `INSERT INTO contact_inquiries (id, full_name, email, role_label, message, created_at)
+     VALUES (?, ?, ?, ?, ?, ?)`
+  ).run(id, cleanName, cleanEmail, cleanRole, cleanMsg, createdAt);
+
+  recordAuditLog(db, {
+    actorId: 'public-visitor',
+    actorName: cleanName,
+    actorRole: cleanRole.toLowerCase().includes('lecturer') ? 'lecturer' : 'student',
+    action: 'CONTACT_INQUIRY_SUBMITTED',
+    targetType: 'contact_inquiry',
+    targetId: id,
+    details: `Homepage inquiry from ${cleanName} (${cleanEmail}) as ${cleanRole}.`,
+  });
+
+  res.status(201).json({ id, createdAt });
+});
+
 // Public demo directory for Login Portal one-click demo fill
 app.get('/api/demo-users', (_req, res) => {
   res.json({ users: getAllPublicUsers(db) });

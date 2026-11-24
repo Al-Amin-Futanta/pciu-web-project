@@ -31,6 +31,7 @@ import {
 import { AssignmentModal } from './components/AssignmentModal';
 import { AuditLogView } from './components/AuditLogView';
 import { ExtensionsView } from './components/ExtensionsView';
+import { Homepage } from './components/Homepage';
 import { LecturerDashboard } from './components/LecturerDashboard';
 import { LecturerInspector } from './components/LecturerInspector';
 import { LoginPortal } from './components/LoginPortal';
@@ -38,7 +39,7 @@ import { MessagesView } from './components/MessagesView';
 import { NotificationDrawer } from './components/NotificationDrawer';
 import { StudentDashboard } from './components/StudentDashboard';
 import { SubmissionModal } from './components/SubmissionModal';
-import { TopNav, type NavTab } from './components/TopNav';
+import { TopNav, type NavTab, type PublicView } from './components/TopNav';
 
 export default function App() {
   const [demoUsers, setDemoUsers] = useState<UserProfile[]>([]);
@@ -46,7 +47,15 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [initError, setInitError] = useState<string | null>(null);
 
+  const [publicView, setPublicView] = useState<PublicView>('home');
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    try {
+      return window.localStorage.getItem('verity_theme') === 'dark';
+    } catch {
+      return false;
+    }
+  });
   const [nowMs, setNowMs] = useState<number>(() => Date.now());
 
   const [notifOpen, setNotifOpen] = useState(false);
@@ -162,11 +171,44 @@ export default function App() {
     };
   }, []);
 
+  // Sync Dark / Bright mode across Homepage, Portal Login, and all dashboards
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    try {
+      window.localStorage.setItem('verity_theme', darkMode ? 'dark' : 'light');
+    } catch {
+      // Ignore storage access restriction
+    }
+  }, [darkMode]);
+
   // Automated deadline countdown ticker
   useEffect(() => {
     const timer = window.setInterval(() => setNowMs(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, []);
+
+  const scrollToSection = useCallback((sectionId: 'about' | 'contact') => {
+    window.setTimeout(() => {
+      const target = document.getElementById(sectionId);
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }, []);
+
+  const handleSelectPublicView = useCallback(
+    (view: PublicView, sectionId?: 'about' | 'contact') => {
+      setPublicView(view);
+      if (view === 'home') {
+        if (sectionId) {
+          scrollToSection(sectionId);
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    },
+    [scrollToSection]
+  );
 
   const handleLogin = async (payload: {
     email: string;
@@ -186,16 +228,31 @@ export default function App() {
     wsRef.current = null;
     logoutSession();
     setData(null);
+    setPublicView('login');
     setActiveTab('dashboard');
     setNotifOpen(false);
   };
 
+  const toggleDarkMode = () => setDarkMode((prev) => !prev);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF8F4] px-6 py-12">
-        <div className="mx-auto max-w-[1200px] space-y-6">
-          <div className="h-12 w-56 animate-pulse rounded-md bg-[#E2DDD3]/60" />
-          <div className="h-96 animate-pulse rounded-lg border border-[#E2DDD3] bg-white" />
+      <div className="min-h-screen bg-[#FAF8F4] text-[#1E2430] dark:bg-[#0B1120] dark:text-white">
+        <TopNav
+          currentUser={null}
+          publicView={publicView}
+          activeTab={activeTab}
+          darkMode={darkMode}
+          onToggleDarkMode={toggleDarkMode}
+          onSelectPublicView={handleSelectPublicView}
+          onSelectTab={setActiveTab}
+          onSignOut={handleSignOut}
+          unreadMessages={0}
+          pendingExtensions={0}
+        />
+        <div className="mx-auto max-w-[1200px] space-y-6 px-6 py-12">
+          <div className="h-12 w-56 animate-pulse rounded-md bg-[#E2DDD3]/60 dark:bg-[#1A263D]" />
+          <div className="h-96 animate-pulse rounded-lg border border-[#E2DDD3] bg-white dark:border-[#293752] dark:bg-[#131C2E]" />
         </div>
       </div>
     );
@@ -203,28 +260,70 @@ export default function App() {
 
   if (initError) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FAF8F4] p-6">
-        <div className="max-w-md rounded-lg border border-[#E2DDD3] bg-white p-8 text-center">
-          <AlertTriangle className="mx-auto h-8 w-8 text-[#8C2D38]" />
-          <h1 className="mt-3 font-display text-xl font-semibold text-[#14213D]">
-            Portal Connection Error
-          </h1>
-          <p className="mt-2 text-sm text-[#5A6475]">{initError}</p>
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="mt-5 rounded-md bg-[#14213D] px-4 py-2 text-xs font-semibold text-white cursor-pointer"
-          >
-            Retry Connection
-          </button>
+      <div className="min-h-screen bg-[#FAF8F4] text-[#1E2430] dark:bg-[#0B1120] dark:text-white">
+        <TopNav
+          currentUser={null}
+          publicView={publicView}
+          activeTab={activeTab}
+          darkMode={darkMode}
+          onToggleDarkMode={toggleDarkMode}
+          onSelectPublicView={handleSelectPublicView}
+          onSelectTab={setActiveTab}
+          onSignOut={handleSignOut}
+          unreadMessages={0}
+          pendingExtensions={0}
+        />
+        <div className="flex min-h-[calc(100vh-73px)] items-center justify-center p-6">
+          <div className="max-w-md rounded-lg border border-[#E2DDD3] bg-white p-8 text-center dark:border-[#293752] dark:bg-[#131C2E]">
+            <AlertTriangle className="mx-auto h-8 w-8 text-[#8C2D38] dark:text-rose-400" />
+            <h1 className="mt-3 font-display text-xl font-semibold text-[#14213D] dark:text-white">
+              Portal Connection Error
+            </h1>
+            <p className="mt-2 text-sm text-[#5A6475] dark:text-white/80">{initError}</p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="mt-5 rounded-md bg-[#14213D] px-4 py-2 text-xs font-semibold text-white dark:bg-white dark:text-[#14213D] cursor-pointer"
+            >
+              Retry Connection
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
-  // Unauthenticated visitors see the dedicated Student / Lecturer Login Portal
+  // Public visitors see Clean Homepage (About & Contact Us) or separate Portal Login page
   if (!data) {
-    return <LoginPortal demoUsers={demoUsers} onLogin={handleLogin} />;
+    return (
+      <div className="min-h-screen bg-[#FAF8F4] text-[#1E2430] dark:bg-[#0B1120] dark:text-white">
+        <TopNav
+          currentUser={null}
+          publicView={publicView}
+          activeTab={activeTab}
+          darkMode={darkMode}
+          onToggleDarkMode={toggleDarkMode}
+          onSelectPublicView={handleSelectPublicView}
+          onSelectTab={setActiveTab}
+          onSignOut={handleSignOut}
+          unreadMessages={0}
+          pendingExtensions={0}
+        />
+
+        {publicView === 'home' ? (
+          <Homepage
+            onNavigateLogin={() => handleSelectPublicView('login')}
+            onScrollSection={scrollToSection}
+          />
+        ) : (
+          <LoginPortal
+            demoUsers={demoUsers}
+            onLogin={handleLogin}
+            onBackHome={() => handleSelectPublicView('home')}
+          />
+        )}
+      </div>
+    );
   }
 
   const {
@@ -412,10 +511,14 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F4] text-[#1E2430]">
+    <div className="min-h-screen bg-[#FAF8F4] text-[#1E2430] dark:bg-[#0B1120] dark:text-white">
       <TopNav
         currentUser={currentUser}
+        publicView={publicView}
         activeTab={activeTab}
+        darkMode={darkMode}
+        onToggleDarkMode={toggleDarkMode}
+        onSelectPublicView={handleSelectPublicView}
         onSelectTab={setActiveTab}
         onSignOut={handleSignOut}
         unreadMessages={unreadMessagesCount}
@@ -425,21 +528,23 @@ export default function App() {
       <main className="mx-auto max-w-[1380px] px-6 py-8">
         {/* Urgent Real-Time Alert Strip for Students (Assignment Canceled / Modified) */}
         {currentUser.role === 'student' && unreadUrgentAlerts.length > 0 && (
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-[#8C2D38]/35 bg-white px-5 py-4">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-[#8C2D38]/35 bg-white px-5 py-4 dark:border-rose-400/40 dark:bg-[#131C2E]">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[#8C2D38]" />
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[#8C2D38] dark:text-white" />
               <div>
-                <p className="text-sm font-semibold text-[#8C2D38]">
+                <p className="text-sm font-semibold text-[#8C2D38] dark:text-white">
                   {unreadUrgentAlerts[0].title}
                 </p>
-                <p className="mt-0.5 text-xs text-[#1E2430]">{unreadUrgentAlerts[0].body}</p>
+                <p className="mt-0.5 text-xs text-[#1E2430] dark:text-white/85">
+                  {unreadUrgentAlerts[0].body}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => handleSelectNotification(unreadUrgentAlerts[0])}
-                className="rounded-md border border-[#8C2D38]/35 px-3 py-1.5 text-xs font-semibold text-[#8C2D38] hover:bg-[#8C2D38]/5 cursor-pointer"
+                className="rounded-md border border-[#8C2D38]/35 px-3 py-1.5 text-xs font-semibold text-[#8C2D38] hover:bg-[#8C2D38]/5 dark:border-rose-400/50 dark:text-white dark:hover:bg-rose-500/20 cursor-pointer"
               >
                 Review Update
               </button>
@@ -450,7 +555,7 @@ export default function App() {
                   await refreshBootstrap();
                 }}
                 aria-label="Dismiss alert"
-                className="rounded p-1 text-[#5A6475] hover:bg-[#F2EFE9] cursor-pointer"
+                className="rounded p-1 text-[#5A6475] hover:bg-[#F2EFE9] dark:text-white dark:hover:bg-[#1A263D] cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -459,14 +564,14 @@ export default function App() {
         )}
 
         {/* Workspace Masthead & Secondary Toolbar */}
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-6 border-b border-[#E2DDD3] pb-6">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-6 border-b border-[#E2DDD3] pb-6 dark:border-[#293752]">
           <div>
-            <p className="font-mono text-xs text-[#5A6475]">
+            <p className="font-mono text-xs text-[#5A6475] dark:text-white/80">
               {currentUser.role === 'lecturer' ? 'Lecturer Portal' : 'Student Portal'} ·{' '}
               {currentUser.name} · {currentUser.department}
               {currentUser.studentCode ? ` · ${currentUser.studentCode}` : ''}
             </p>
-            <h1 className="mt-1.5 font-display text-3xl font-semibold tracking-tight text-[#14213D] [text-wrap:balance]">
+            <h1 className="mt-1.5 font-display text-3xl font-semibold tracking-tight text-[#14213D] dark:text-white [text-wrap:balance]">
               {mastheadTitle()}
             </h1>
           </div>
@@ -475,12 +580,12 @@ export default function App() {
             <button
               type="button"
               onClick={() => setNotifOpen(true)}
-              className="flex items-center gap-2 rounded-md border border-[#E2DDD3] bg-white px-3.5 py-2 text-xs font-medium text-[#1E2430] hover:border-[#14213D]/40 whitespace-nowrap shrink-0 cursor-pointer"
+              className="flex items-center gap-2 rounded-md border border-[#E2DDD3] bg-white px-3.5 py-2 text-xs font-medium text-[#1E2430] hover:border-[#14213D]/40 dark:border-[#293752] dark:bg-[#131C2E] dark:text-white dark:hover:border-white/50 whitespace-nowrap shrink-0 cursor-pointer"
             >
-              <Bell className="h-3.5 w-3.5 text-[#14213D]" />
+              <Bell className="h-3.5 w-3.5 text-[#14213D] dark:text-white" />
               <span>Alerts</span>
               {unreadNotifs.length > 0 && (
-                <span className="font-mono font-semibold text-[#8C2D38] tabular-nums">
+                <span className="font-mono font-semibold text-[#8C2D38] dark:text-rose-300 tabular-nums">
                   ({unreadNotifs.length})
                 </span>
               )}
@@ -490,7 +595,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setAssignmentModal({ mode: 'create', assignment: null })}
-                className="flex items-center gap-1.5 rounded-md bg-[#14213D] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1D2E54] whitespace-nowrap shrink-0 cursor-pointer"
+                className="flex items-center gap-1.5 rounded-md bg-[#14213D] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1D2E54] dark:bg-white dark:text-[#14213D] dark:hover:bg-slate-100 whitespace-nowrap shrink-0 cursor-pointer"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Publish Assignment
@@ -651,18 +756,20 @@ export default function App() {
       {toast && (
         <div
           role="status"
-          className="fixed right-6 bottom-6 z-50 max-w-sm rounded-lg border border-[#14213D]/25 bg-white px-5 py-4 shadow-lg"
+          className="fixed right-6 bottom-6 z-50 max-w-sm rounded-lg border border-[#14213D]/25 bg-white px-5 py-4 shadow-lg dark:border-[#293752] dark:bg-[#131C2E]"
         >
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold text-[#14213D]">{toast.title}</p>
-              <p className="mt-1 text-xs leading-relaxed text-[#5A6475]">{toast.body}</p>
+              <p className="text-xs font-semibold text-[#14213D] dark:text-white">{toast.title}</p>
+              <p className="mt-1 text-xs leading-relaxed text-[#5A6475] dark:text-white/80">
+                {toast.body}
+              </p>
             </div>
             <button
               type="button"
               onClick={() => setToast(null)}
               aria-label="Close alert"
-              className="rounded p-1 text-[#5A6475] hover:bg-[#F2EFE9] cursor-pointer"
+              className="rounded p-1 text-[#5A6475] hover:bg-[#F2EFE9] dark:text-white dark:hover:bg-[#1A263D] cursor-pointer"
             >
               <X className="h-3.5 w-3.5" />
             </button>

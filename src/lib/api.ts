@@ -40,6 +40,18 @@ export async function fetchDemoUsers(): Promise<UserProfile[]> {
   return res.users;
 }
 
+export async function submitContactInquiry(payload: {
+  fullName: string;
+  email: string;
+  roleLabel: string;
+  message: string;
+}): Promise<{ id: string; createdAt: string }> {
+  return requestJson<{ id: string; createdAt: string }>('/api/contact', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function loginWithCredentials(payload: {
   email: string;
   passcode: string;
